@@ -25,6 +25,37 @@ If ThisWorkbook.Sheets("Macro").TextBox1.Value = "" Then
 End If
 
 End Sub
+Public Sub clear_procedure()
+
+    ThisWorkbook.Sheets("Macro").TextBox1.Value = ""
+        
+        ThisWorkbook.Sheets("Macro").TextBox2.Value = ""
+        
+        ThisWorkbook.Sheets("Macro").Range("O5:O7").Value = ""
+        
+        ThisWorkbook.Sheets("Macro").Range("O8").Font.Color = vbWhite
+        
+     '   ThisWorkbook.Sheets("File_Format_check").Activate
+        
+     '   ThisWorkbook.Sheets("File_Format_check").Range("B3:I4").Value = ""
+        
+        ThisWorkbook.Sheets("Current_year_file").Activate
+        
+        Range("A1:XFD1").Interior.ColorIndex = 0
+        
+        ActiveSheet.UsedRange.Rows.Clear
+        
+        ThisWorkbook.Sheets("Previous_year_file").Activate
+        
+        Range("A1:XFD1").Interior.ColorIndex = 0
+        
+        ActiveSheet.UsedRange.Rows.Clear
+        
+        ThisWorkbook.Sheets("Macro").Activate
+
+End Sub
+
+
 Sub SelectFile()
 
 Dim fd As Office.FileDialog
@@ -53,7 +84,20 @@ End If
 
 End Sub
 Sub Consolidate_files()
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Application.EnableEvents = False
     
+    For Each Wb In Workbooks
+    
+            If Wb.Name <> ThisWorkbook.Name Then
+            
+                Wb.Close
+            
+            End If
+            
+    Next
     
     ''''''''''''''Column numbers cehck '''''''''''''''''''''''''''''''''''''''''''''''''''''''
     
@@ -73,9 +117,7 @@ Sub Consolidate_files()
     
     st_time = Now()
 
-    Application.ScreenUpdating = False
-    Application.DisplayAlerts = False
-    Application.EnableEvents = False
+   
     
     For Each ws In ThisWorkbook.Worksheets
     
@@ -323,21 +365,20 @@ Sub Consolidate_files()
   
   '''''''''''''''''''Currrent Year check ''''''''''''''''''''''''''''
   
-   ThisWorkbook.Sheets("Current_year_file").Activate
-  
-    End_column = Empty: End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, 1).Address, "$")(1)
-    
-    End_row = Empty: End_row = Range("A" & Rows.Count).End(xlUp).Row
-    
-    cells_End_column = Empty: cells_End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, Highest_number + 2).Address, "$")(1)
-    
-    Frst_column = "A"
+                    ThisWorkbook.Sheets("Current_year_file").Activate
+                    
+                    End_column = Empty: End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, 1).Address, "$")(1)
+                    
+                    End_row = Empty: End_row = Range("A" & Rows.Count).End(xlUp).Row
+                    
+                    cells_End_column = Empty: cells_End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, Highest_number + 2).Address, "$")(1)
+                    
+                    Frst_column = "A"
   
   
         For i = 1 To Highest_number
           
                     Range(End_column & 1).Value = Cells(1, i).Value & " " & "Lookup"
-                    
                     
                     Range(End_column & 2 & ":" & End_column & End_row).Select: Selection.Formula = "=VLOOKUP(A2,PYT!A:N," & i & ",0) "
                     
@@ -368,29 +409,29 @@ Sub Consolidate_files()
         Next
   
   
-                Last_column = Split(Range("XFD1").End(xlToLeft).Address, "$")(1)
-                
-                CY_end_row = Range("A" & Rows.Count).End(xlUp).Row
-                
-                Range("A1:" & Last_column & "1").Interior.ColorIndex = 8
-                
-                Range("A1:" & Last_column & CY_end_row & "").Borders.LineStyle = xlContinuous
+                    Last_column = Split(Range("XFD1").End(xlToLeft).Address, "$")(1)
+                    
+                    CY_end_row = Range("A" & Rows.Count).End(xlUp).Row
+                    
+                    Range("A1:" & Last_column & "1").Interior.ColorIndex = 8
+                    
+                    Range("A1:" & Last_column & CY_end_row & "").Borders.LineStyle = xlContinuous
                 
      '''''''''''''Current year check '''''''''''''''''''''''''
      
                 
-    Sheets("PYT").Delete
-    
-      Workbooks.Add
-     Set New_workbook = ActiveWorkbook
+        Sheets("PYT").Delete
+        
+        Workbooks.Add
+        Set New_workbook = ActiveWorkbook
 
-    Count = New_workbook.Worksheets.Count
-    
-    If Count < 2 Then
-        
-        Sheets.Add(After:=Sheets(Sheets.Count)).Name = "Sheet2"
-        
-    End If
+                        Count = New_workbook.Worksheets.Count
+                        
+                        If Count < 2 Then
+                            
+                            Sheets.Add(After:=Sheets(Sheets.Count)).Name = "Sheet2"
+                            
+                        End If
                         
                         ThisWorkbook.Sheets("Current_year_file").Copy Before:=New_workbook.Sheets("Sheet2")
                         
@@ -408,42 +449,43 @@ Sub Consolidate_files()
                 
               
     
-    FilePath = ThisWorkbook.Path
+         FilePath = ThisWorkbook.Path
     
     
-    If ThisWorkbook.Sheets("Macro").Range("I14").Value = "" Then
+                    If ThisWorkbook.Sheets("Macro").Range("I14").Value = "" Then
+                    
+                                New_workbook.Activate
+                            
+                                ActiveWorkbook.SaveAs (FilePath & "\" & "Output_file")
+                                
+                    Else
+                                File_name = ThisWorkbook.Sheets("Macro").Range("I14").Value
+                                
+                                New_workbook.Activate
+                                
+                                ActiveWorkbook.SaveAs (FilePath & "\" & File_name)
+                                
+                    End If
     
-                New_workbook.Activate
-
-                ActiveWorkbook.SaveAs (FilePath & "\" & "Output_file")
-                
-    Else
-                File_name = ThisWorkbook.Sheets("Macro").Range("I14").Value
-                
-                New_workbook.Activate
-                
-                ActiveWorkbook.SaveAs (FilePath & "\" & File_name)
-                
-    End If
+                    Application.ScreenUpdating = True
+                    Application.DisplayAlerts = True
+                    Application.EnableEvents = True
     
-    Application.ScreenUpdating = True
-    Application.DisplayAlerts = True
-    Application.EnableEvents = True
-    
-    User_name = Application.UserName
-    
-    end_time = Now()
-    
-    ThisWorkbook.Sheets("Macro").Range("N5").Value = Application.UserName
-    ThisWorkbook.Sheets("Macro").Range("N6").Value = st_time
-    ThisWorkbook.Sheets("Macro").Range("N7").Value = end_time
-    ThisWorkbook.Sheets("Macro").Range("N8").Font.Color = vbBlack
-    
-    New_workbook.Close: Set New_workbook = Nothing
-    
-    ThisWorkbook.Sheets("Macro").Activate
-    
-    MsgBox "Process completed"
-    
+                    User_name = Application.UserName
+                    
+                    end_time = Now()
+                    
+                    ThisWorkbook.Sheets("Macro").Range("N5").Value = Application.UserName
+                    ThisWorkbook.Sheets("Macro").Range("N6").Value = st_time
+                    ThisWorkbook.Sheets("Macro").Range("N7").Value = end_time
+                    ThisWorkbook.Sheets("Macro").Range("N8").Font.Color = vbBlack
+                    
+                    New_workbook.Close: Set New_workbook = Nothing
+                    
+                    ThisWorkbook.Sheets("Macro").Activate
+                    
+                    MsgBox "Process completed"
+                    
 End Sub
+
 
