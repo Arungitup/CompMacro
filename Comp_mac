@@ -1,0 +1,449 @@
+Sub SelectFolder()
+
+Dim fd As Office.FileDialog
+
+Set fd = Application.FileDialog(msoFileDialogFilePicker)
+
+With fd
+
+    .AllowMultiSelect = False
+    .Title = "Please select the file "
+    If .Show = True Then
+        txtFileName = .SelectedItems(1)
+    End If
+
+End With
+
+ThisWorkbook.Sheets("Macro").TextBox1.BackColor = vbWhite
+
+ThisWorkbook.Sheets("Macro").TextBox1.Text = txtFileName
+
+If ThisWorkbook.Sheets("Macro").TextBox1.Value = "" Then
+    
+     ThisWorkbook.Sheets("Macro").TextBox1.BackColor = vbRed
+ 
+End If
+
+End Sub
+Sub SelectFile()
+
+Dim fd As Office.FileDialog
+
+Set fd = Application.FileDialog(msoFileDialogFilePicker)
+
+With fd
+
+    .AllowMultiSelect = False
+    .Title = "Please select the file "
+    If .Show = True Then
+        txtFileName = .SelectedItems(1)
+    End If
+
+End With
+  
+ThisWorkbook.Sheets("Macro").TextBox2.BackColor = vbWhite
+
+ThisWorkbook.Sheets("Macro").TextBox2.Text = txtFileName
+
+If ThisWorkbook.Sheets("Macro").TextBox2.Value = "" Then
+
+ ThisWorkbook.Sheets("Macro").TextBox2.BackColor = vbRed
+ 
+End If
+
+End Sub
+Sub Consolidate_files()
+    
+    
+    ''''''''''''''Column numbers cehck '''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    ThisWorkbook.Sheets("Current_year_file").Activate
+        
+    Range("A1:XFD1").Interior.ColorIndex = 0
+    
+    ActiveSheet.UsedRange.Rows.Clear
+    
+    ThisWorkbook.Sheets("Previous_year_file").Activate
+    
+    Range("A1:XFD1").Interior.ColorIndex = 0
+    
+    ActiveSheet.UsedRange.Rows.Clear
+    
+    ThisWorkbook.Sheets("Macro").Activate
+    
+    st_time = Now()
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Application.EnableEvents = False
+    
+    For Each ws In ThisWorkbook.Worksheets
+    
+                    If ws.Name = "PYT" Then
+                    
+                        Sheets("PYT").Delete
+                        
+                    End If
+        
+    Next
+    
+    ThisWorkbook.Sheets("Current_year_file").Activate
+        
+    ActiveSheet.UsedRange.Rows.Clear
+    
+    ThisWorkbook.Sheets("Previous_year_file").Activate
+    
+    ActiveSheet.UsedRange.Rows.Clear
+    
+    ThisWorkbook.Sheets("Macro").Activate
+    
+                        If ThisWorkbook.Sheets("Macro").TextBox1.Text = "" Then
+                        
+                                        MsgBox "Select Current year file"
+                                        
+                                        ThisWorkbook.Sheets("Macro").TextBox1.BackColor = vbRed
+                                        
+                                        Exit Sub
+                            
+                        ElseIf ThisWorkbook.Sheets("Macro").TextBox1.Text = "" Then
+                        
+                                         MsgBox "Select previous year file"
+                                         
+                                        Exit Sub
+                        
+                        End If
+    
+
+    Current_yr_file = ThisWorkbook.Sheets("Macro").TextBox1.Text
+    
+    Previous_yr_file = ThisWorkbook.Sheets("Macro").TextBox2.Text
+
+    Workbooks.Open Current_yr_file, False, False
+    
+    Set Current_year_file = Nothing: Set Current_year_file = ActiveWorkbook
+        
+    Current_year_file.Activate
+    
+    Active_shet_nmame = ActiveSheet.Name
+    
+    End_column = Split(Range("CC2").End(xlToLeft).Address, "$")(1)
+    
+    Highest_number = Application.WorksheetFunction.Max(Range("A1:" & End_column & "1"))
+    
+    End_row_sor = ActiveSheet.UsedRange.Rows.Count
+    
+    colum_num = ActiveSheet.UsedRange.Columns.Count
+    
+  '  Workbooks.Add
+    
+    A = 2
+    
+    Set New_workbook = Nothing: Set New_workbook = ActiveWorkbook
+    
+  For i = 1 To Highest_number
+    
+    For J = 1 To colum_num
+    
+            column_second = Cells(1, J).Value
+                 
+                 Current_year_file.Activate
+                
+                      If column_second = i Then
+                      
+                      Range("A1:" & End_column & "1").Select
+                      
+                                   Set cell = Selection.Find(What:=i, After:=ActiveCell, LookIn:=xlFormulas, _
+                                    LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+                                    MatchCase:=False, SearchFormat:=False)
+                      
+                      Add = Split(cell.Address, "$")(1)
+                      
+                      Columns(Add).Cut
+                      
+                      New_add = Split(Cells(, i).Address, "$")(1)
+                      
+                     
+                      
+              On Error Resume Next
+                      
+                      Columns(New_add).Insert
+                                
+            On Error GoTo 0
+            
+            On Error GoTo -1
+                            
+                            Exit For
+                
+                      End If
+                    
+                Next
+    
+    Next
+    
+
+    Rows(1).Delete
+    
+    ActiveSheet.UsedRange.Copy
+        
+    ThisWorkbook.Sheets("Current_year_file").Activate
+    
+    ThisWorkbook.Sheets("Current_year_file").Range("A1").PasteSpecial xlPasteAll: Application.CutCopyMode = False
+    
+    Current_year_file.Close: Set Current_year_file = Nothing
+    
+    Workbooks.Open Previous_yr_file, False, False
+    
+    Set Previous_year_file = Nothing: Set Previous_year_file = ActiveWorkbook
+    
+    Previous_year_file.Activate
+    
+    Active_shet_nmame = ActiveSheet.Name
+    
+    
+                        For i = 1 To Highest_number
+                        
+                        For J = 1 To colum_num
+                        
+                                column_second = Cells(1, J).Value
+                                     
+                                     
+                                    
+                                          If column_second = i Then
+                                          
+                                          Range("A1:" & End_column & "1").Select
+                                          
+                                                       Set cell = Selection.Find(What:=i, After:=ActiveCell, LookIn:=xlFormulas, _
+                                                        LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+                                                        MatchCase:=False, SearchFormat:=False)
+                                          
+                                        
+                                          
+                                          Add = Split(cell.Address, "$")(1)
+                                          
+                                          Columns(Add).Cut
+                                          
+                                          New_add = Split(Cells(, i).Address, "$")(1)
+                                          
+                                         On Error Resume Next
+                                         
+                                          Columns(New_add).Insert
+                                          
+                                          On Error GoTo 0
+                                          On Error GoTo -1
+                                          
+                                         
+                                          'Addresss_column=
+                                          
+                                              
+                                                Exit For
+                                    
+                                          End If
+                                        
+                                    Next
+                        
+                        Next
+                        
+    
+
+    
+    Rows(1).Delete
+    
+    ActiveSheet.UsedRange.Copy
+    
+    ThisWorkbook.Activate
+    
+    ThisWorkbook.Sheets("Previous_year_file").Activate
+    
+    ThisWorkbook.Sheets("Previous_year_file").Range("A1").PasteSpecial xlPasteAll
+    
+    Sheets.Add After:=Worksheets(Worksheets.Count)
+    
+    ActiveSheet.Name = "PYT"
+    
+    Range("A1").PasteSpecial xlPasteAll: Application.CutCopyMode = False
+    
+    Previous_year_file.Close: Set Previous_year_file = Nothing
+    
+    ThisWorkbook.Sheets("Previous_year_file").Activate
+    
+    CY_end_row = Range("A" & Rows.Count).End(xlUp).Row
+    
+    ''''''''''Previous year Check'''''''''''''''''''''
+        
+    End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, 1).Address, "$")(1)
+    
+    End_row = Range("A" & Rows.Count).End(xlUp).Row
+    
+    cells_End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, Highest_number + 2).Address, "$")(1)
+    
+
+  
+    Frst_column = "A"
+  
+        For i = 1 To Highest_number
+          
+                  Range(End_column & 1).Value = Cells(1, i).Value & " " & "Lookup"
+                  
+                  Range(End_column & 2 & ":" & End_column & End_row).Select: Selection.Formula = "=VLOOKUP(A2,Current_year_file!A:N," & i & ",0) "
+                  
+                  Selection.Copy: Selection.PasteSpecial xlPasteValues: Application.CutCopyMode = False
+                  
+                  If i > 3 And i < 8 And IsNumeric(Range("C2").Value) = False Then
+                  
+                       Range(End_column & ":" & End_column).NumberFormat = "M/D/YYYY"
+                  
+                  ElseIf i > 2 And i < 7 And IsNumeric(Range("C2").Value) = True Then
+                  
+                      Range(End_column & ":" & End_column).NumberFormat = "M/D/YYYY"
+                   
+                  End If
+                
+                  Range(cells_End_column & 1).Value = Cells(1, i).Value & " " & "Comparision"
+                  
+                  Range(cells_End_column & 2 & ":" & cells_End_column & End_row).Select: Selection.Formula = "=" & Frst_column & "2=" & End_column & "2"
+                  
+                  Selection.Copy: Selection.PasteSpecial xlPasteValues: Application.CutCopyMode = False
+                  
+                  End_column = Split(Range(End_column & 1).Offset(0, 1).Address, "$")(1)
+                  
+                  Frst_column = Split(Range(Frst_column & "1").Offset(0, 1).Address, "$")(1)
+              
+                  cells_End_column = Split(Range(cells_End_column & 1).Offset(0, 1).Address, "$")(1)
+           
+        Next
+        
+                    CY_end_row = Range("A" & Rows.Count).End(xlUp).Row
+                    
+                    Last_column = Split(Range("XFD1").End(xlToLeft).Address, "$")(1)
+                           
+                    Range("A1:" & Last_column & "1").Interior.ColorIndex = 8
+                    
+                    Range("A1:" & Last_column & CY_end_row & "").Borders.LineStyle = xlContinuous
+        
+  
+  '''''''''''''''''''Currrent Year check ''''''''''''''''''''''''''''
+  
+   ThisWorkbook.Sheets("Current_year_file").Activate
+  
+    End_column = Empty: End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, 1).Address, "$")(1)
+    
+    End_row = Empty: End_row = Range("A" & Rows.Count).End(xlUp).Row
+    
+    cells_End_column = Empty: cells_End_column = Split(Range("XFD1").End(xlToLeft).Offset(0, Highest_number + 2).Address, "$")(1)
+    
+    Frst_column = "A"
+  
+  
+        For i = 1 To Highest_number
+          
+                    Range(End_column & 1).Value = Cells(1, i).Value & " " & "Lookup"
+                    
+                    
+                    Range(End_column & 2 & ":" & End_column & End_row).Select: Selection.Formula = "=VLOOKUP(A2,PYT!A:N," & i & ",0) "
+                    
+                    Selection.Copy: Selection.PasteSpecial xlPasteValues: Application.CutCopyMode = False
+                    
+                    If i > 3 And i < 8 And IsNumeric(Range("C2").Value) = False Then
+                    
+                       Range(End_column & ":" & End_column).NumberFormat = "M/D/YYYY"
+                    
+                    ElseIf i > 2 And i < 7 And IsNumeric(Range("C2").Value) = True Then
+                    
+                      Range(End_column & ":" & End_column).NumberFormat = "M/D/YYYY"
+                    
+                    End If
+                    
+                    Range(cells_End_column & 1).Value = Cells(1, i).Value & " " & "Comparision"
+                    
+                    Range(cells_End_column & 2 & ":" & cells_End_column & End_row).Select: Selection.Formula = "=" & Frst_column & "2=" & End_column & "2"
+                    
+                    Selection.Copy: Selection.PasteSpecial xlPasteValues: Application.CutCopyMode = False
+                    
+                    End_column = Split(Range(End_column & 1).Offset(0, 1).Address, "$")(1)
+                    
+                    Frst_column = Split(Range(Frst_column & "1").Offset(0, 1).Address, "$")(1)
+                    
+                    cells_End_column = Split(Range(cells_End_column & 1).Offset(0, 1).Address, "$")(1)
+           
+        Next
+  
+  
+                Last_column = Split(Range("XFD1").End(xlToLeft).Address, "$")(1)
+                
+                CY_end_row = Range("A" & Rows.Count).End(xlUp).Row
+                
+                Range("A1:" & Last_column & "1").Interior.ColorIndex = 8
+                
+                Range("A1:" & Last_column & CY_end_row & "").Borders.LineStyle = xlContinuous
+                
+     '''''''''''''Current year check '''''''''''''''''''''''''
+     
+                
+    Sheets("PYT").Delete
+    
+      Workbooks.Add
+     Set New_workbook = ActiveWorkbook
+
+    Count = New_workbook.Worksheets.Count
+    
+    If Count < 2 Then
+        
+        Sheets.Add(After:=Sheets(Sheets.Count)).Name = "Sheet2"
+        
+    End If
+                        
+                        ThisWorkbook.Sheets("Current_year_file").Copy Before:=New_workbook.Sheets("Sheet2")
+                        
+                        ActiveSheet.Name = "Curent year - Previous year"
+                        
+                        ActiveSheet.UsedRange.EntireColumn.AutoFit
+                        
+                        ThisWorkbook.Sheets("Previous_year_file").Copy After:=New_workbook.Sheets("Sheet2")
+                        
+                        New_workbook.Sheets("Sheet1").Delete
+                        
+                        New_workbook.Sheets("Sheet2").Delete
+                        
+                        ActiveSheet.UsedRange.EntireColumn.AutoFit
+                
+              
+    
+    FilePath = ThisWorkbook.Path
+    
+    
+    If ThisWorkbook.Sheets("Macro").Range("I14").Value = "" Then
+    
+                New_workbook.Activate
+
+                ActiveWorkbook.SaveAs (FilePath & "\" & "Output_file")
+                
+    Else
+                File_name = ThisWorkbook.Sheets("Macro").Range("I14").Value
+                
+                New_workbook.Activate
+                
+                ActiveWorkbook.SaveAs (FilePath & "\" & File_name)
+                
+    End If
+    
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Application.EnableEvents = True
+    
+    User_name = Application.UserName
+    
+    end_time = Now()
+    
+    ThisWorkbook.Sheets("Macro").Range("N5").Value = Application.UserName
+    ThisWorkbook.Sheets("Macro").Range("N6").Value = st_time
+    ThisWorkbook.Sheets("Macro").Range("N7").Value = end_time
+    ThisWorkbook.Sheets("Macro").Range("N8").Font.Color = vbBlack
+    
+    New_workbook.Close: Set New_workbook = Nothing
+    
+    ThisWorkbook.Sheets("Macro").Activate
+    
+    MsgBox "Process completed"
+    
+End Sub
+
